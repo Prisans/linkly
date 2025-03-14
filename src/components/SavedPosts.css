@@ -1,0 +1,128 @@
+.saved-posts {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.saved-posts h2 {
+    color: #0a66c2;
+    margin-bottom: 20px;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.post-card {
+    background: #ffffff;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.post-header {
+    margin-bottom: 15px;
+}
+
+.post-header h3 {
+    color: #1a1a1a;
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.post-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.post-tone, .post-length {
+    background: #f3f4f6;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: #4b5563;
+}
+
+.post-content {
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 15px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e1e1e1;
+}
+
+.copy-btn, .delete-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.copy-btn {
+    background-color: #059669;
+}
+
+.copy-btn:hover {
+    background-color: #047857;
+}
+
+.delete-btn {
+    background-color: #dc2626;
+}
+
+.delete-btn:hover {
+    background-color: #b91c1c;
+}
+
+.no-posts {
+    text-align: center;
+    padding: 40px;
+    background: #f9fafb;
+    border-radius: 8px;
+    color: #6b7280;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #6b7280;
+}
+
+/* Scrollbar styling */
+.post-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.post-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.post-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.post-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+} 
