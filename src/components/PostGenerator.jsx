@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { generateLinkedInPost } from '../config/deepseek';
 import './PostGenerator.css';
 
 const toneOptions = ['professional', 'corporate', 'thought leadership'];
@@ -8,27 +9,40 @@ function PostGenerator() {
     const [formData, setFormData] = useState({
         topic: '',
         tone: 'professional',
-        length: 'medium'
+        length: 'standard'
     });
     const [generatedPost, setGeneratedPost] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         
-        setTimeout(() => {
-            const dummyPost = `🎯 Exciting insights about ${formData.topic}!\n\n` +
-                `As a professional in this field, I've discovered that innovation and creativity are key to success. ${formData.topic} represents a fascinating opportunity for growth and development.\n\n` +
-                `🔑 Key takeaways:\n` +
-                `• Embrace continuous learning\n` +
-                `• Focus on value creation\n` +
-                `• Build meaningful connections\n\n` +
-                `What are your thoughts on ${formData.topic}? Let's discuss in the comments! 👇\n\n` +
-                `#${formData.topic.replace(/\s+/g, '')} #Innovation #Professional #LinkedIn #Growth`;
-            setGeneratedPost(dummyPost);
+        if (!formData.topic.trim()) {
+            setError('Please enter a topic');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+        setGeneratedPost('');
+
+        try {
+            const post = await generateLinkedInPost(
+                formData.topic.trim(),
+                formData.tone,
+                formData.length
+            );
+            setGeneratedPost(post);
+        } catch (error) {
+            console.error('Generation error:', error);
+            setError(error.message || 'Failed to generate post. Please try again.');
+            if (error.message.includes('busy')) {
+                setTimeout(() => handleSubmit(e), 5000);
+            }
+        } finally {
             setLoading(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -40,8 +54,11 @@ function PostGenerator() {
                         id="topic"
                         type="text"
                         value={formData.topic}
-                        onChange={(e) => setFormData({...formData, topic: e.target.value})}
-                        placeholder="Enter your topic or keywords"
+                        onChange={(e) => {
+                            setFormData({...formData, topic: e.target.value});
+                            setError(''); // Clear error when user types
+                        }}
+                        placeholder="Enter your topic or area of expertise"
                         required
                     />
                 </div>
@@ -76,10 +93,19 @@ function PostGenerator() {
                     </select>
                 </div>
 
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Generating Content...' : 'Generate Professional Post'}
+                <button 
+                    type="submit" 
+                    disabled={loading || !formData.topic.trim()}
+                >
+                    {loading ? 'Crafting Your Content...' : 'Generate Professional Post'}
                 </button>
             </form>
+
+            {error && (
+                <div className="error">
+                    {error}
+                </div>
+            )}
 
             {generatedPost && (
                 <div className="generated-content">
@@ -88,8 +114,11 @@ function PostGenerator() {
                         {generatedPost}
                     </div>
                     <div className="post-actions">
-                        <button onClick={() => navigator.clipboard.writeText(generatedPost)}>
-                            📋 Copy to Clipboard
+                        <button onClick={() => {
+                            navigator.clipboard.writeText(generatedPost);
+                            alert('Content copied to clipboard!');
+                        }}>
+                            Copy to Clipboard
                         </button>
                     </div>
                 </div>

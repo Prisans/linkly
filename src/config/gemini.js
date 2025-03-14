@@ -1,6 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// Make sure API key is properly loaded
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!API_KEY) {
+    throw new Error('Gemini API key is missing in environment variables');
+}
+
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 const postLengths = {
     short: '300-500',
@@ -8,24 +15,46 @@ const postLengths = {
     long: '800-1200'
 };
 
-export const generatePost = async (topic, tone, length) => {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
-    const prompt = `Create a ${tone} LinkedIn post about ${topic}.
-    The post should be ${postLengths[length]} characters long.
-    Include relevant hashtags and format with appropriate line breaks.
-    The tone should be ${tone}, making sure it resonates with a professional LinkedIn audience.
-    Structure the post with:
-    - An engaging opening hook
-    - Main content with valuable insights
-    - A clear call-to-action
-    - 3-5 relevant hashtags`;
+export const generateLinkedInPost = async (topic, tone, length) => {
+    if (!topic) {
+        throw new Error('Topic is required');
+    }
 
     try {
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        
+        const prompt = `Create a professional LinkedIn post about ${topic}.
+            Length: ${length}
+            Tone: ${tone}
+            
+            Include:
+            1. An attention-grabbing headline with emoji
+            2. Brief introduction
+            3. Main points as bullet points
+            4. Call to action
+            5. Relevant hashtags
+            
+            Make it engaging and professional.`;
+
         const result = await model.generateContent(prompt);
         const response = await result.response;
         return response.text();
     } catch (error) {
-        throw new Error(`Failed to generate post: ${error.message}`);
+        console.error('Gemini API Error:', error);
+        throw error;
+    }
+};
+
+// Add this function to test the API
+export const testGeminiAPI = async () => {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const result = await model.generateContent("Say hello!");
+        const response = await result.response;
+        console.log("API Test Response:", response.text());
+        return true;
+    } catch (error) {
+        console.error("API Test Error:", error);
+        return false;
     }
 }; 
