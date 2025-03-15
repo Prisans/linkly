@@ -1,4 +1,4 @@
-const DEEPSEEK_API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY;
+const DEEPSEEK_API_KEY = "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";
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export const generateLinkedInPost = async (topic, tone, length) => {
