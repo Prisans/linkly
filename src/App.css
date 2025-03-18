@@ -1,34 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-    --primary: #0b3c8f;
-    --primary-light: #1756c5;
+    --primary: #0b65ff;
+    --primary-light: #2d7bff;
     --accent: #ffd700;
     --text-primary: #1a1a1a;
     --text-secondary: #4f4f4f;
-    --background: #ffffff;
-    --surface: #f8fafc;
+    --background: #f8fafc;
+    --surface: #ffffff;
     --border: #e2e8f0;
-    --shadow: rgba(11, 60, 143, 0.1);
+    --shadow: rgba(11, 101, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
-    background-color: var(--surface);
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.5;
 }
 
 .app {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px 20px;
 }
 
 header {
     text-align: center;
-    padding: 60px 40px;
+    padding: 40px;
     margin-bottom: 40px;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    border-radius: 12px;
+    border-radius: 16px;
     position: relative;
     overflow: hidden;
 }
@@ -51,7 +59,7 @@ header::before {
 header h1 {
     color: white;
     margin: 0;
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
 }
@@ -59,21 +67,20 @@ header h1 {
 .subtitle {
     color: rgba(255, 255, 255, 0.9);
     font-size: 1.25rem;
-    margin-top: 15px;
+    margin-top: 12px;
     font-weight: 500;
 }
 
 main {
-    background: var(--background);
-    border-radius: 12px;
+    background: var(--surface);
+    border-radius: 16px;
     box-shadow: 0 4px 20px var(--shadow);
-    margin-bottom: 40px;
     overflow: hidden;
 }
 
 footer {
     text-align: center;
-    padding: 20px;
+    padding: 40px 20px;
     color: var(--text-secondary);
     font-size: 0.95rem;
     font-weight: 500;
@@ -96,15 +103,24 @@ footer p::after {
 }
 
 @media (max-width: 768px) {
+    .app {
+        padding: 20px;
+    }
+
     header {
-        padding: 40px 20px;
+        padding: 30px 20px;
+        margin-bottom: 30px;
     }
 
     header h1 {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
 
     .subtitle {
         font-size: 1.1rem;
+    }
+
+    footer {
+        padding: 30px 20px;
     }
 }
