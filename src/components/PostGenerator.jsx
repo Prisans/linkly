@@ -142,10 +142,19 @@ For example:
 
                         <button 
                             type="submit" 
-                            className="generate-button"
+                            className={`generate-button ${loading ? 'loading' : ''}`}
                             disabled={loading || !formData.topic.trim()}
                         >
-                            {loading ? 'Crafting Your Content...' : 'Generate'}
+                            <span className="button-text">
+                                {loading ? 'Crafting Your Content...' : 'Generate'}
+                            </span>
+                            {loading && (
+                                <div className="loading-animation">
+                                    <div className="dot"></div>
+                                    <div className="dot"></div>
+                                    <div className="dot"></div>
+                                </div>
+                            )}
                         </button>
                     </div>
                 </form>
@@ -164,6 +173,17 @@ For example:
                         <li>Click 'Generate' to let the magic happen.</li>
                     </ol>
                 </div>
+
+                {loading && (
+                    <div className="loading-container">
+                        <div className="typing-animation">
+                            <div className="typing-dot"></div>
+                            <div className="typing-dot"></div>
+                            <div className="typing-dot"></div>
+                        </div>
+                        <p>AI is crafting your perfect LinkedIn post...</p>
+                    </div>
+                )}
 
                 {error && (
                     <div className="error">
@@ -192,4 +212,4 @@ For example:
     );
 }
 
-export default PostGenerator; 
+export default PostGenerator;
