@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { generateLinkedInPost } from '../config/deepseek';
 import './PostGenerator.css';
 
 const toneOptions = ['professional', 'corporate', 'thought leadership'];
 const lengthOptions = ['brief', 'standard', 'detailed'];
 
-function PostGenerator() {
-    const [formData, setFormData] = useState({
+function PostGenerator({ selectedPost, setSelectedPost }) {
+    const initialFormData = {
         topic: '',
         tone: 'professional',
         length: 'standard',
@@ -14,18 +14,63 @@ function PostGenerator() {
         includeEmojis: false,
         variations: 1,
         wordCount: 50
-    });
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
     const [generatedPost, setGeneratedPost] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleWordCountChange = (e) => {
-        const value = parseInt(e.target.value);
-        setFormData({...formData, wordCount: value});
-    };
+    useEffect(() => {
+        if (selectedPost) {
+            setFormData(prevData => ({
+                ...prevData,
+                topic: selectedPost.content
+            }));
+            setSelectedPost(null);
+        }
+    }, [selectedPost, setSelectedPost]);
 
-    const handleSubmit = async (e) => {
+    const handleInputChange = useCallback((e) => {
+        e.stopPropagation();
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+        if (name === 'topic') setError('');
+    }, []);
+
+    const handleWordCountChange = useCallback((e) => {
+        e.stopPropagation();
+        const value = parseInt(e.target.value);
+        if (!isNaN(value)) {
+            setFormData(prev => ({...prev, wordCount: value}));
+        }
+    }, []);
+
+    const saveToHistory = useCallback((content) => {
+        const savedPosts = JSON.parse(localStorage.getItem('linkedinPosts') || '[]');
+        const newPost = {
+            content,
+            date: new Date().toISOString(),
+            favorite: false
+        };
+        savedPosts.unshift(newPost);
+        localStorage.setItem('linkedinPosts', JSON.stringify(savedPosts));
+    }, []);
+
+    const resetForm = useCallback((e) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+        setFormData(initialFormData);
+        setGeneratedPost('');
+        setError('');
+    }, []);
+
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
+        e.stopPropagation();
         
         if (!formData.topic.trim()) {
             setError('Please enter a topic');
@@ -44,16 +89,18 @@ function PostGenerator() {
                 formData.wordCount
             );
             setGeneratedPost(post);
+            saveToHistory(post);
         } catch (error) {
             console.error('Generation error:', error);
             setError(error.message || 'Failed to generate post. Please try again.');
-            if (error.message.includes('busy')) {
-                setTimeout(() => handleSubmit(e), 5000);
-            }
         } finally {
             setLoading(false);
         }
-    };
+    }, [formData, saveToHistory]);
+
+    const handleTextareaClick = useCallback((e) => {
+        e.stopPropagation();
+    }, []);
 
     return (
         <div className="post-generator-container">
@@ -62,16 +109,18 @@ function PostGenerator() {
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <textarea
+                            name="topic"
                             value={formData.topic}
-                            onChange={(e) => {
-                                setFormData({...formData, topic: e.target.value});
-                                setError('');
-                            }}
+                            onChange={handleInputChange}
+                            onClick={handleTextareaClick}
+                            onFocus={handleTextareaClick}
                             placeholder="Describe the topic for which you need LinkedIn Post Ideas.
 
 For example:
 'Technology & Gadgets', 'Upcoming Companies', 'Innovation'"
                             required
+                            autoFocus
+                            spellCheck="true"
                         />
                     </div>
 
@@ -83,8 +132,11 @@ For example:
                                     type="range"
                                     min="30"
                                     max="200"
+                                    step="10"
+                                    name="wordCount"
                                     value={formData.wordCount}
                                     onChange={handleWordCountChange}
+                                    onClick={e => e.stopPropagation()}
                                 />
                                 <span>{formData.wordCount}</span>
                             </div>
@@ -93,13 +145,30 @@ For example:
                         <div className="voice-tone">
                             <label>Voice Tone</label>
                             <select
+                                name="tone"
                                 value={formData.tone}
-                                onChange={(e) => setFormData({...formData, tone: e.target.value})}
+                                onChange={handleInputChange}
+                                onClick={e => e.stopPropagation()}
                             >
-                                <option value="">Pick a tone</option>
                                 {toneOptions.map(tone => (
                                     <option key={tone} value={tone}>
                                         {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="post-length">
+                            <label>Post Length</label>
+                            <select
+                                name="length"
+                                value={formData.length}
+                                onChange={handleInputChange}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {lengthOptions.map(length => (
+                                    <option key={length} value={length}>
+                                        {length.charAt(0).toUpperCase() + length.slice(1)}
                                     </option>
                                 ))}
                             </select>
@@ -109,16 +178,20 @@ For example:
                             <label>
                                 <input
                                     type="checkbox"
+                                    name="includeHashtags"
                                     checked={formData.includeHashtags}
-                                    onChange={(e) => setFormData({...formData, includeHashtags: e.target.checked})}
+                                    onChange={handleInputChange}
+                                    onClick={e => e.stopPropagation()}
                                 />
                                 Generate Hashtags
                             </label>
                             <label>
                                 <input
                                     type="checkbox"
+                                    name="includeEmojis"
                                     checked={formData.includeEmojis}
-                                    onChange={(e) => setFormData({...formData, includeEmojis: e.target.checked})}
+                                    onChange={handleInputChange}
+                                    onClick={e => e.stopPropagation()}
                                 />
                                 Include Emojis
                             </label>
@@ -132,7 +205,10 @@ For example:
                                         key={num}
                                         type="button"
                                         className={formData.variations === num ? 'active' : ''}
-                                        onClick={() => setFormData({...formData, variations: num})}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setFormData(prev => ({...prev, variations: num}));
+                                        }}
                                     >
                                         {num}
                                     </button>
@@ -140,39 +216,53 @@ For example:
                             </div>
                         </div>
 
-                        <button 
-                            type="submit" 
-                            className={`generate-button ${loading ? 'loading' : ''}`}
-                            disabled={loading || !formData.topic.trim()}
-                        >
-                            <span className="button-text">
-                                {loading ? 'Crafting Your Content...' : 'Generate'}
-                            </span>
-                            {loading && (
-                                <div className="loading-animation">
-                                    <div className="dot"></div>
-                                    <div className="dot"></div>
-                                    <div className="dot"></div>
-                                </div>
+                        <div className="form-actions">
+                            <button 
+                                type="submit" 
+                                className={`generate-button ${loading ? 'loading' : ''}`}
+                                disabled={loading || !formData.topic.trim()}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <span className="button-text">
+                                    {loading ? 'Crafting Your Content...' : 'Generate'}
+                                </span>
+                                {loading && (
+                                    <div className="loading-animation">
+                                        <div className="dot"></div>
+                                        <div className="dot"></div>
+                                        <div className="dot"></div>
+                                    </div>
+                                )}
+                            </button>
+                            {generatedPost && (
+                                <button 
+                                    type="button"
+                                    className="reset-button"
+                                    onClick={resetForm}
+                                >
+                                    Reset
+                                </button>
                             )}
-                        </button>
+                        </div>
                     </div>
                 </form>
             </div>
 
             <div className="results-section">
                 <h2>Results</h2>
-                <div className="instructions">
-                    <p>Let Linkly craft your social media captions in seconds:</p>
-                    <ol>
-                        <li>Simply enter your prompt.</li>
-                        <li>Tailor the word count to match your requirements.</li>
-                        <li>Define the tone that fits your requirements.</li>
-                        <li>Toggle hashtags and emojis as required.</li>
-                        <li>Choose the number of variations you want.</li>
-                        <li>Click 'Generate' to let the magic happen.</li>
-                    </ol>
-                </div>
+                {!generatedPost && !loading && !error && (
+                    <div className="instructions">
+                        <p>Let Linkly craft your social media captions in seconds:</p>
+                        <ol>
+                            <li>Simply enter your prompt.</li>
+                            <li>Tailor the word count to match your requirements.</li>
+                            <li>Define the tone that fits your requirements.</li>
+                            <li>Toggle hashtags and emojis as required.</li>
+                            <li>Choose the number of variations you want.</li>
+                            <li>Click 'Generate' to let the magic happen.</li>
+                        </ol>
+                    </div>
+                )}
 
                 {loading && (
                     <div className="loading-container">
@@ -198,10 +288,13 @@ For example:
                             {generatedPost}
                         </div>
                         <div className="post-actions">
-                            <button onClick={() => {
-                                navigator.clipboard.writeText(generatedPost);
-                                alert('Content copied to clipboard!');
-                            }}>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(generatedPost);
+                                }}
+                                className="copy-button"
+                            >
                                 Copy to Clipboard
                             </button>
                         </div>
