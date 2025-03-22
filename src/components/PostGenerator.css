@@ -4,7 +4,7 @@
     padding: 20px;
     position: relative;
     z-index: 1;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -17,6 +17,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 2;
+    min-width: 500px;
 }
 
 .form-group {
