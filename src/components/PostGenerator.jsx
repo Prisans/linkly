@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { generateLinkedInPost } from '../config/deepseek';
 import './PostGenerator.css';
 
-const toneOptions = ['professional', 'corporate', 'thought leadership'];
-const lengthOptions = ['brief', 'standard', 'detailed'];
+const toneOptions = ['Professional', 'Casual'];
+const lengthOptions = ['Standard', 'Extended'];
 
 function PostGenerator({ selectedPost, setSelectedPost }) {
     const initialFormData = {
         topic: '',
-        tone: 'professional',
-        length: 'standard',
+        tone: 'Professional',
+        length: 'Standard',
         includeHashtags: false,
         includeEmojis: false,
         variations: 1,
@@ -84,8 +84,8 @@ function PostGenerator({ selectedPost, setSelectedPost }) {
         try {
             const post = await generateLinkedInPost(
                 formData.topic.trim(),
-                formData.tone,
-                formData.length,
+                formData.tone.toLowerCase(),
+                formData.length.toLowerCase(),
                 formData.wordCount
             );
             setGeneratedPost(post);
@@ -125,6 +125,36 @@ For example:
                     </div>
 
                     <div className="form-options">
+                        <div className="form-group">
+                            <label>Voice Tone</label>
+                            <div className="tone-options">
+                                {toneOptions.map(tone => (
+                                    <div
+                                        key={tone}
+                                        className={`tone-option ${formData.tone === tone ? 'selected' : ''}`}
+                                        onClick={() => setFormData(prev => ({...prev, tone: tone}))}
+                                    >
+                                        {tone}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Post Length</label>
+                            <div className="length-options">
+                                {lengthOptions.map(length => (
+                                    <div
+                                        key={length}
+                                        className={`length-option ${formData.length === length ? 'selected' : ''}`}
+                                        onClick={() => setFormData(prev => ({...prev, length: length}))}
+                                    >
+                                        {length}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="word-count">
                             <label>Approx. Words</label>
                             <div className="word-count-control">
@@ -140,38 +170,6 @@ For example:
                                 />
                                 <span>{formData.wordCount}</span>
                             </div>
-                        </div>
-
-                        <div className="voice-tone">
-                            <label>Voice Tone</label>
-                            <select
-                                name="tone"
-                                value={formData.tone}
-                                onChange={handleInputChange}
-                                onClick={e => e.stopPropagation()}
-                            >
-                                {toneOptions.map(tone => (
-                                    <option key={tone} value={tone}>
-                                        {tone.charAt(0).toUpperCase() + tone.slice(1)}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="post-length">
-                            <label>Post Length</label>
-                            <select
-                                name="length"
-                                value={formData.length}
-                                onChange={handleInputChange}
-                                onClick={e => e.stopPropagation()}
-                            >
-                                {lengthOptions.map(length => (
-                                    <option key={length} value={length}>
-                                        {length.charAt(0).toUpperCase() + length.slice(1)}
-                                    </option>
-                                ))}
-                            </select>
                         </div>
 
                         <div className="checkbox-options">
